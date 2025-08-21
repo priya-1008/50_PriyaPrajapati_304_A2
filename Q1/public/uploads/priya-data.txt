@@ -1,0 +1,8 @@
+
+      Username: priya
+      Email: priya@gmail.com
+      Gender: Female
+      Hobbies: Sports, Music
+      Profile Pic: 1755779281812-Maa_Durga_HD_Wallpaper.jpg
+      Other Pics: 1755779281816-Wallpaper.jpg
+    

@@ -1,0 +1,8 @@
+
+      Username: admin
+      Email: priya@gmail.com
+      Gender: Female
+      Hobbies: Reading, Music
+      Profile Pic: 1755615405462-HD-wallpaper-white-ganpati-statue-in-blur-background-ganesh.jpg
+      Other Pics: 1755615405474-lord-ganesha-background-desktop-computer-wallpaper-preview.jpg, 1755615405484-Maa Wallpaper.webp
+    
