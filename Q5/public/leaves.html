@@ -1,87 +1,238 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8"/>
-  <title>Leaves</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <style>body{font-family:Arial;max-width:700px;margin:30px auto;}label,input,textarea{display:block;width:100%;margin:6px 0}</style>
-</head>
-<body>
-  <h2>Apply for Leave</h2>
+  <head>
+    <meta charset="utf-8" />
+    <title>Leaves</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      /* Leaves Page Styling */
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #74ebd5, #9face6);
+        margin: 0;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-  <div id="feedback" style="color:green"></div>
+      h2,
+      h3 {
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
 
-  <form id="leaveForm">
-    <label>Date</label>
-    <input type="date" id="date" required />
-    <label>Reason</label>
-    <textarea id="reason" rows="3" required></textarea>
-    <button type="submit">Submit Leave</button>
-  </form>
+      form {
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        width: 400px;
+        margin-bottom: 30px;
+      }
 
-  <h3>Your Leaves</h3>
-  <table border="1" id="leavesTable" width="100%" style="border-collapse:collapse">
-    <thead><tr><th>Date</th><th>Reason</th><th>Granted</th><th>Applied At</th></tr></thead>
-    <tbody></tbody>
-  </table>
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #555;
+      }
 
-  <p><a href="/profile.html">Profile</a> | <a href="#" id="logout">Logout</a></p>
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+      }
 
-  <script>
-    const token = localStorage.getItem('token');
-    if (!token) window.location.href = '/';
+      input:focus,
+      textarea:focus {
+        border-color: #2575fc;
+        outline: none;
+      }
 
-    function loadLeaves(){
-      $.ajax({
-        url: '/api/leaves',
-        method: 'GET',
-        headers: { Authorization: 'Bearer ' + token },
-        success(res){
-          const tbody = $('#leavesTable tbody').empty();
-          if (!res.length) tbody.append('<tr><td colspan="4">No leaves</td></tr>');
-          res.forEach(l => {
-            tbody.append(`<tr>
+      button {
+        width: 100%;
+        padding: 12px;
+        background: #2575fc;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+
+      button:hover {
+        background: #1b5cd9;
+      }
+
+      #feedback {
+        margin: 10px 0;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      /* Leaves Table */
+      table {
+        width: 90%;
+        max-width: 800px;
+        border-collapse: collapse;
+        background: #fff;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      thead {
+        background: #2575fc;
+        color: #fff;
+      }
+
+      th,
+      td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      tr:hover {
+        background-color: #f1f7ff;
+      }
+
+      p {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      a {
+        text-decoration: none;
+        color: #2575fc;
+        font-weight: bold;
+        margin: 0 8px;
+        transition: color 0.3s ease;
+      }
+
+      a:hover {
+        color: #1b5cd9;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Apply for Leave</h2>
+
+    <div id="feedback" style="color: green"></div>
+
+    <form id="leaveForm">
+      <label>Date</label>
+      <input type="date" id="date" required />
+      <label>Reason</label>
+      <textarea id="reason" rows="3" required></textarea>
+      <button type="submit">Submit Leave</button>
+    </form>
+
+    <h3>Your Leaves</h3>
+    <table
+      border="1"
+      id="leavesTable"
+      width="100%"
+      style="border-collapse: collapse"
+    >
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Reason</th>
+          <th>Granted</th>
+          <th>Applied At</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <p>
+      <a href="/profile.html">Profile</a> | <a href="#" id="logout">Logout</a>
+    </p>
+
+    <script>
+      const token = localStorage.getItem("token");
+      if (!token) window.location.href = "/";
+
+      function loadLeaves() {
+        $.ajax({
+          url: "/api/leaves",
+          method: "GET",
+          headers: { Authorization: "Bearer " + token },
+          success(res) {
+            const tbody = $("#leavesTable tbody").empty();
+            if (!res.length)
+              tbody.append('<tr><td colspan="4">No leaves</td></tr>');
+            res.forEach((l) => {
+              tbody.append(`<tr>
               <td>${new Date(l.date).toLocaleDateString()}</td>
               <td>${l.reason}</td>
-              <td>${l.granted ? 'Yes' : 'No'}</td>
+              <td>${l.granted ? "Yes" : "No"}</td>
               <td>${new Date(l.createdAt).toLocaleString()}</td>
             </tr>`);
-          });
-        },
-        error(){
-          // token invalid -> go to login
-          localStorage.removeItem('token'); localStorage.removeItem('profile'); window.location.href = '/';
+            });
+          },
+          error() {
+            // token invalid -> go to login
+            localStorage.removeItem("token");
+            localStorage.removeItem("profile");
+            window.location.href = "/";
+          },
+        });
+      }
+
+      $("#leaveForm").on("submit", function (e) {
+        e.preventDefault();
+        $("#feedback").text("");
+        const date = $("#date").val();
+        const reason = $("#reason").val().trim();
+        if (!date || !reason) {
+          $("#feedback").css("color", "red").text("Fill both fields");
+          return;
         }
+
+        $.ajax({
+          url: "/api/leaves",
+          method: "POST",
+          contentType: "application/json",
+          headers: { Authorization: "Bearer " + token },
+          data: JSON.stringify({ date, reason }),
+          success(res) {
+            $("#feedback").css("color", "green").text("Leave applied");
+            $("#reason").val("");
+            $("#date").val("");
+            loadLeaves();
+          },
+          error(xhr) {
+            $("#feedback")
+              .css("color", "red")
+              .text(xhr.responseJSON?.message || "Error");
+          },
+        });
       });
-    }
 
-    $('#leaveForm').on('submit', function(e){
-      e.preventDefault();
-      $('#feedback').text('');
-      const date = $('#date').val();
-      const reason = $('#reason').val().trim();
-      if (!date || !reason) { $('#feedback').css('color','red').text('Fill both fields'); return; }
-
-      $.ajax({
-        url: '/api/leaves',
-        method: 'POST',
-        contentType: 'application/json',
-        headers: { Authorization: 'Bearer ' + token },
-        data: JSON.stringify({ date, reason }),
-        success(res){
-          $('#feedback').css('color','green').text('Leave applied');
-          $('#reason').val(''); $('#date').val('');
-          loadLeaves();
-        },
-        error(xhr){
-          $('#feedback').css('color','red').text(xhr.responseJSON?.message || 'Error');
-        }
+      $("#logout").on("click", function (e) {
+        e.preventDefault();
+        localStorage.removeItem("token");
+        localStorage.removeItem("profile");
+        window.location.href = "/";
       });
-    });
 
-    $('#logout').on('click', function(e){ e.preventDefault(); localStorage.removeItem('token'); localStorage.removeItem('profile'); window.location.href = '/'; });
-
-    loadLeaves();
-  </script>
-</body>
+      loadLeaves();
+    </script>
+  </body>
 </html>

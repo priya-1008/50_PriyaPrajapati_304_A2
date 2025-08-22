@@ -2,29 +2,104 @@
 <html>
 <head>
   <title>Registration Result</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      width: 600px;
+      max-width: 95%;
+      text-align: center;
+    }
+
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table th, table td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+      background-color: #f1f7ff;
+    }
+
+    td:first-child {
+      font-weight: bold;
+      color: #444;
+      width: 30%;
+    }
+
+    img {
+      margin: 5px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    a {
+      display: inline-block;
+      text-decoration: none;
+      background: #4CAF50;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    a:hover {
+      background: #43a047;
+    }
+  </style>
 </head>
 <body>
-  <h2>Registration Successful</h2>
-  <table border="1" cellpadding="10">
-    <tr><td>Username</td><td><%= user.username %></td></tr>
-    <tr><td>Email</td><td><%= user.email %></td></tr>
-    <tr><td>Gender</td><td><%= user.gender %></td></tr>
-    <tr><td>Hobbies</td><td><%= user.hobbies.join(", ") %></td></tr>
-    <tr>
-      <td>Profile Pic</td>
-      <td><img src="/uploads/<%= user.profilePic %>" width="100"></td>
-    </tr>
-    <tr>
-      <td>Other Pics</td>
-      <td>
-        <% user.otherPics.forEach(pic => { %>
-          <img src="/uploads/<%= pic %>" width="100">
-        <% }) %>
-      </td>
-    </tr>
-  </table>
+  <div class="container">
+    <h2>Registration Successful</h2>
+    <table>
+      <tr><td>Username</td><td><%= user.username %></td></tr>
+      <tr><td>Email</td><td><%= user.email %></td></tr>
+      <tr><td>Gender</td><td><%= user.gender %></td></tr>
+      <tr><td>Hobbies</td><td><%= user.hobbies.join(", ") %></td></tr>
+      <tr>
+        <td>Profile Pic</td>
+        <td><img src="/uploads/<%= user.profilePic %>" width="100"></td>
+      </tr>
+      <tr>
+        <td>Other Pics</td>
+        <td>
+          <% user.otherPics.forEach(pic => { %>
+            <img src="/uploads/<%= pic %>" width="100">
+          <% }) %>
+        </td>
+      </tr>
+    </table>
 
-  <br>
-  <a href="/download/<%= file %>">Download Your Data File</a>
+    <a href="/download/<%= file %>">Download Your Data File</a>
+  </div>
 </body>
 </html>

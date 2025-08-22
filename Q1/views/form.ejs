@@ -2,38 +2,134 @@
 <html>
 <head>
   <title>User Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      width: 400px;
+      max-width: 95%;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    form input[type="text"],
+    form input[type="password"],
+    form input[type="email"],
+    form input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .radio-group,
+    .checkbox-group {
+      margin-bottom: 15px;
+    }
+
+    .radio-group input,
+    .checkbox-group input {
+      margin-right: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #4CAF50;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    ul li {
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h2>User Registration</h2>
+  <div class="container">
+    <h2>User Registration</h2>
 
-  <% if (errors.length > 0) { %>
-    <ul style="color:red;">
-      <% errors.forEach(err => { %>
-        <li><%= err.msg %></li>
-      <% }) %>
-    </ul>
-  <% } %>
+    <% if (errors.length > 0) { %>
+      <ul style="color:red;">
+        <% errors.forEach(err => { %>
+          <li><%= err.msg %></li>
+        <% }) %>
+      </ul>
+    <% } %>
 
-  <form action="/register" method="post" enctype="multipart/form-data">
-    Username: <input type="text" name="username" value="<%= old.username || '' %>"><br><br>
-    Password: <input type="password" name="password"><br><br>
-    Confirm Password: <input type="password" name="confirmPassword"><br><br>
-    Email: <input type="text" name="email" value="<%= old.email || '' %>"><br><br>
+    <form action="/register" method="post" enctype="multipart/form-data">
+      <label>Username:</label>
+      <input type="text" name="username" value="<%= old.username || '' %>">
 
-    Gender: 
-    <input type="radio" name="gender" value="Male" <%= old.gender==="Male"?"checked":"" %>> Male
-    <input type="radio" name="gender" value="Female" <%= old.gender==="Female"?"checked":"" %>> Female <br><br>
+      <label>Password:</label>
+      <input type="password" name="password">
 
-    Hobbies:
-    <input type="checkbox" name="hobbies" value="Reading" <%= old.hobbies && old.hobbies.includes("Reading")?"checked":"" %>> Reading
-    <input type="checkbox" name="hobbies" value="Sports" <%= old.hobbies && old.hobbies.includes("Sports")?"checked":"" %>> Sports
-    <input type="checkbox" name="hobbies" value="Music" <%= old.hobbies && old.hobbies.includes("Music")?"checked":"" %>> Music
-    <br><br>
+      <label>Confirm Password:</label>
+      <input type="password" name="confirmPassword">
 
-    Upload Profile Pic: <input type="file" name="profilePic"><br><br>
-    Upload Other Pics: <input type="file" name="otherPics" multiple><br><br>
+      <label>Email:</label>
+      <input type="text" name="email" value="<%= old.email || '' %>">
 
-    <button type="submit">Register</button>
-  </form>
+      <div class="radio-group">
+        <label>Gender:</label>
+        <input type="radio" name="gender" value="Male" <%= old.gender==="Male"?"checked":"" %>> Male
+        <input type="radio" name="gender" value="Female" <%= old.gender==="Female"?"checked":"" %>> Female
+      </div>
+
+      <div class="checkbox-group">
+        <label>Hobbies:</label>
+        <input type="checkbox" name="hobbies" value="Reading" <%= old.hobbies && old.hobbies.includes("Reading")?"checked":"" %>> Reading
+        <input type="checkbox" name="hobbies" value="Sports" <%= old.hobbies && old.hobbies.includes("Sports")?"checked":"" %>> Sports
+        <input type="checkbox" name="hobbies" value="Music" <%= old.hobbies && old.hobbies.includes("Music")?"checked":"" %>> Music
+      </div>
+
+      <label>Upload Profile Pic:</label>
+      <input type="file" name="profilePic">
+
+      <label>Upload Other Pics:</label>
+      <input type="file" name="otherPics" multiple>
+
+      <button type="submit">Register</button>
+    </form>
+  </div>
 </body>
 </html>

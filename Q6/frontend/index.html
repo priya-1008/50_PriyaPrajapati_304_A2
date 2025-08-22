@@ -1,45 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upcoming Holidays</title>
-</head>
-<body>
+    <!-- <style>
+      /* General Page Styling */
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(120deg, #89f7fe, #66a6ff);
+        margin: 0;
+        padding: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #333;
+      }
+
+      /* Heading */
+      h1 {
+        color: #222;
+        margin-bottom: 20px;
+        font-size: 28px;
+        text-align: center;
+      }
+
+      /* Country Selector */
+      label {
+        font-weight: bold;
+        margin-right: 10px;
+        font-size: 16px;
+      }
+
+      select {
+        padding: 10px 15px;
+        font-size: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+      }
+
+      select:focus {
+        border-color: #2575fc;
+        outline: none;
+      }
+
+      /* Holidays List */
+      ul {
+        margin-top: 30px;
+        padding: 0;
+        list-style: none;
+        width: 400px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+
+      ul li {
+        padding: 14px 18px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      ul li:last-child {
+        border-bottom: none;
+      }
+
+      ul li:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+
+      ul li:hover {
+        background-color: #f1f7ff;
+      }
+
+      /* Holiday Date vs Name Styling */
+      ul li span.date {
+        font-weight: bold;
+        color: #2575fc;
+      }
+
+      ul li span.name {
+        color: #444;
+      }
+    </style> -->
+  </head>
+  <body>
     <h1>Upcoming Public Holidays</h1>
     <label for="country">Select Country</label>
     <select id="country">
-        <option value="US">United State</option>
-        <option value="DE">Germany</option>
-        <option value="IN">India</option>
-        <option value="FR">France</option>
-        <option value="JP">Japan</option>
+      <option value="US">United State</option>
+      <option value="DE">Germany</option>
+      <option value="IN">India</option>
+      <option value="FR">France</option>
+      <option value="JP">Japan</option>
     </select>
 
-    <ul id="holidays">Loadng...</ul>
+    <ul id="holidays">
+      Loadng...
+    </ul>
 
     <script>
+      const countrySelector = document.getElementById("country");
+      const list = document.getElementById("holidays");
 
-        const countrySelector = document.getElementById('country');
-        const list = document.getElementById('holidays');
+      async function loadHolidays(country) {
+        try {
+          const res = await fetch(`/api/holidays?country=${country}`);
+          const holidays = await res.json();
 
-        async function loadHolidays(country) {
-            try {
-                const res = await fetch(`/api/holidays?country=${country}`);
-                const holidays = await res.json();
-
-                list.innerHTML = holidays.map(h => `<li>${h.date} - ${h.localName}</li>`).join('');
-            } catch (err) {
-                list.innerHTML = '<li>Failed to load holidays.</li>';
-                console.error(err);
-            }
+          list.innerHTML = holidays
+            .map((h) => `<li>${h.date} - ${h.localName}</li>`)
+            .join("");
+        } catch (err) {
+          list.innerHTML = "<li>Failed to load holidays.</li>";
+          console.error(err);
         }
+      }
 
-            countrySelector.addEventListener('change', () => {
-            loadHolidays(countrySelector.value);
-        });
-
+      countrySelector.addEventListener("change", () => {
         loadHolidays(countrySelector.value);
+      });
+
+      loadHolidays(countrySelector.value);
     </script>
-</body>
+  </body>
 </html>
