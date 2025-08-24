@@ -1,85 +1,105 @@
 const express = require("express");
 const session = require("express-session");
-const bodyParser = require("body-parser");
+const RedisStore = require("connect-redis").RedisStore; // v7+ exports default
 const { createClient } = require("redis");
-const connectRedis = require("connect-redis");
+const bcrypt = require("bcryptjs");
+const path = require("path");
 
 const app = express();
-app.use(bodyParser.urlencoded({extended : true}));
 
-const PORT = 3000;
-
-let redisClient = createClient({
-    legacyMode: true,
-    socket: {
-      host: '127.0.0.1', 
-      port: 6379
-    }
+// -------- Redis client --------
+const redisClient = createClient({
+  url: process.env.REDIS_URL || "redis://localhost:6379"
 });
-redisClient.connect().catch(console.error);
+redisClient.on("error", (err) => console.error("Redis error:", err));
+redisClient.connect(); // node-redis v4 returns a promise (no await needed here)
 
-const RedisStore = connectRedis(session);
+// Create RedisStore using the factory function
+// const RedisStore = createRedisStore(session);
+
+// -------- Session middleware --------
 app.use(
-    session({
-        store : new RedisStore({ client: redisClient }),
-        secret : 'mysecretkey',
-        resave : false,
-        saveUninitialized : false,
-        cookie : {maxAge : 3600000},
-    })
-)
-
-const USER = {
-    username : 'admin',
-    password : '1234',
-};
-
-app.get('/',(req,res) => {
-    if (req.session.user) {
-        return res.redirect('/dashboard');
+  session({
+    store: new RedisStore({ client: redisClient, prefix: "sess:" }),
+    secret: process.env.SESSION_SECRET || "super-secret-key-change-me",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      // set secure:true if behind HTTPS
+      secure: false,
+      maxAge: 1000 * 60 * 60 // 1 hour
     }
-    else{
-      res.send(`
-          <h2>Login Page</h2>
-          <form method="POST" action="/login">
-              <input name="username" type="text" placeholder="Username" required/></br>
-              <input name="password" type="password" placeholder="Password" required/></br>
-              <button type="submit">Login</button>
-          </form>    
-      `);
-    }
-});
+  })
+);
 
-app.post('/login',(req,res) => {
-    const {username,password} = req.body;
+// -------- App basics --------
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.urlencoded({ extended: true }));
 
-    if (username === USER.username && password === USER.password) {
-        req.session.user = username;
-        return res.redirect('/dashboard');
-    }
-    res.send('Invalid Credentials. <a href="/">Try Again.</a>');
-});
+// ---- Demo “user store” (replace with DB in real apps) ----
+/**
+ * In memory user:
+ * username: admin
+ * password: admin123  (will be hashed on server start)
+ */
+let USERS = {};
+(async () => {
+  const hash = await bcrypt.hash("admin123", 10);
+  USERS["admin"] = { username: "admin", passwordHash: hash };
+})();
 
-function authMiddelware(req,res,next) {
-    if (req.session.user) {
-        return next();
-    }
-    res.redirect('/');
+// -------- Auth helpers --------
+function requireAuth(req, res, next) {
+  if (req.session?.user) return next();
+  res.redirect("/login");
 }
 
-app.get('/dashboard', authMiddelware, (req, res) => {
-  res.send(`
-    <h2>Welcome, ${req.session.user}</h2>
-    <a href="/logout">Logout</a>
-  `);
+// -------- Routes --------
+app.get("/", (req, res) => {
+  res.redirect("/profile");
 });
 
-app.get('/logout', (req, res) => {
+app.get("/login", (req, res) => {
+  if (req.session.user) return res.redirect("/profile");
+  res.render("login", { error: null });
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body || {};
+  const user = USERS[username];
+  if (!user) return res.status(401).render("login", { error: "Invalid credentials" });
+
+  const ok = await bcrypt.compare(password, user.passwordHash);
+  if (!ok) return res.status(401).render("login", { error: "Invalid credentials" });
+
+  req.session.user = { username };
+  res.redirect("/profile");
+});
+
+app.post("/logout", (req, res) => {
   req.session.destroy(() => {
-    res.redirect('/');
+    res.clearCookie("connect.sid");
+    res.redirect("/login");
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.get("/profile", requireAuth, (req, res) => {
+  res.render("profile", { user: req.session.user });
 });
+
+// Optional: basic register to add new users (in-memory)
+app.get("/register", (req, res) => {
+  res.render("register", { error: null });
+});
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password) return res.status(400).render("register", { error: "All fields required" });
+  if (USERS[username]) return res.status(400).render("register", { error: "User already exists" });
+  USERS[username] = { username, passwordHash: await bcrypt.hash(password, 10) };
+  res.redirect("/login");
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
